@@ -1,0 +1,52 @@
+name: Enhance Awesome List
+
+on:
+  schedule:
+    - cron: '0 2 * * *' # Run daily at 2 AM UTC
+  workflow_dispatch: # Allow manual triggering
+  push: # For testing: trigger on push to main branch (remove for production if noisy)
+    branches:
+      - main # or your default branch
+
+jobs:
+  enhance_and_commit:
+    runs-on: ubuntu-latest
+    # Set permissions for GITHUB_TOKEN.
+    # `contents: write` is needed to push changes to this repository.
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          # The token used here needs write permissions to THIS repository for the commit/push step
+          # that is now INSIDE the composite action.
+          # If using default GITHUB_TOKEN, ensure it has `contents: write` permission
+          # (set at the job level or workflow level as above).
+          # A PAT (secrets.PAT_FOR_COMMIT_ACCESS) can be used if more specific permissions are needed
+          # or if committing as a different user identity is required by the commit action.
+          # However, stefanzweifel/git-auto-commit-action typically uses the GITHUB_TOKEN.
+          # token: ${{ secrets.PAT_FOR_COMMIT_ACCESS }} # Only if specific PAT is needed for checkout/commit identity
+          submodules: 'true' # Initialize submodules, though our action will update 'origin'
+
+      - name: Run Awesome List Enhancer and Commit
+        uses: v1nvn/enhansome@v1
+        id: enhansome
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          # submodule_path: 'origin'
+          # content_destination_path: '.'
+          # files_to_enhance: 'README.md'
+          # items_to_sync: 'README.md'
+          # extra_rsync_args: ""
+          # do_commit: 'true' # Explicitly enable commit, though it's the default in the toolkit
+          # commit_message: "docs(enhance): ✨ Auto-update awesome list with latest content and star counts"
+          # commit_user_name: "Enhansome" # Custom bot name
+          # commit_user_email: "actions-bot@users.noreply.github.com" # Standard GitHub Actions bot email
+          # commit_branch: 'main' # Optional: specify branch if not current
+
+      - name: Enhancement Complete
+        if: success()
+        run: echo "Awesome list enhancement process complete. Changes (if any) have been committed by the toolkit."
+
