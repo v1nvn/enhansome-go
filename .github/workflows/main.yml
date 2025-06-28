@@ -31,7 +31,7 @@ jobs:
           submodules: 'true' # Initialize submodules, though our action will update 'origin'
 
       - name: Run Awesome List Enhancer and Commit
-        uses: v1nvn/enhansome@1.1.0
+        uses: v1nvn/enhansome@v1
         id: enhansome
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
